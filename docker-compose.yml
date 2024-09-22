@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  cratedb:
+    image: crate:latest
+    ports:
+      - "4200:4200"
+      - "5432:5432"
+    volumes:
+      - cratedb-data:/var/lib/crate
+
+  iot_simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - cratedb
+    volumes:
+      - ./mock_iaq_data.csv:/app/mock_iaq_data.csv
+
+  data_alerts:
+    build:
+      context: .
+      dockerfile: Dockerfile-alerts
+    depends_on:
+      - cratedb
+    environment:
+      - LINE_NOTIFY_TOKEN=wo1sgtT7u2JC7Z26GkWwjEFbfcBQtdKIvgQjZE  
+
+volumes:
+  cratedb-data:
